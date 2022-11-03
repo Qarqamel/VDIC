@@ -5,8 +5,16 @@ module top;
 // type and variable definitions
 //------------------------------------------------------------------------------
 
-typedef enum bit[8:0] {cmd_and = 8'b100000001,
-    				   cmd_add = 8'b100010000} command_t;
+typedef enum bit[9:0] {
+	cmd_and = 10'b1000000010,
+    	cmd_add = 10'b1000100000,
+	cmd_inv = 10'b1100000000
+} command_t;
+
+typedef enum bit[9:0] {
+	sts_noerr = 10'b1000000001,
+    sts_invcmd = 10'b1100000000
+} status_t;
 
 bit				   din;
 bit                clk;
@@ -15,8 +23,12 @@ bit                enable_n;
 
 wire               dout;
 wire        	   dout_valid;
-command_t          cmd_set;
 
+command_t          input_cmd;
+bit [9:0]		   input_data_1, input_data_2;
+bit	[9:0] 		   output_status, output_data_1, output_data_2;
+	
+bit [29:0]		   expected_result;
 string             test_result = "PASSED";
 
 //------------------------------------------------------------------------------
@@ -51,89 +63,75 @@ end
 //---------------------------------
 // Random data generation functions
 
-//function operation_t get_op();
-//    bit [2:0] op_choice;
-//    op_choice = $random;
-//    case (op_choice)
-//        3'b000 : return no_op;
-//        3'b001 : return add_op;
-//        3'b010 : return and_op;
-//        3'b011 : return xor_op;
-//        3'b100 : return mul_op;
-//        3'b101 : return no_op;
-//        3'b110 : return rst_op;
-//        3'b111 : return rst_op;
-//    endcase // case (op_choice)
-//endfunction : get_op
+function command_t get_cmd();
+	bit cmd_choice;
+	cmd_choice = $random;
+	case (cmd_choice)
+		1'b00 : return cmd_and;
+		1'b01 : return cmd_add;
+		default : return cmd_inv;
+	endcase
+endfunction : get_cmd
 
 //---------------------------------
-//function byte get_data();
-//    bit [1:0] zero_ones;
-//    zero_ones = 2'($random);
-//    if (zero_ones == 2'b00)
-//        return 8'h00;
-//    else if (zero_ones == 2'b11)
-//        return 8'hFF;
-//    else
-//        return 8'($random);
-//endfunction : get_data
+
+function bit [9:0] get_data();
+	bit [9:0] data;
+    bit [1:0] zero_ones;
+	data[9] = 0;
+    zero_ones = 2'($random);
+    if (zero_ones == 2'b00)
+        data[8:1] = 8'h00;
+    else if (zero_ones == 2'b11)
+        data[8:1] = 8'hFF;
+    else
+        data[8:1] =  8'($random);
+    data[0] = ^data[9:1];
+    return data;
+endfunction
 
 //------------------------
 // Tester main
+//------------------------
 
-//initial begin : tester
-//    reset_alu();
-//    repeat (100) begin : tester_main
-//        @(negedge clk);
-//        op_set = get_op();
-//        A      = get_data();
-//        B      = get_data();
-//        start  = 1'b1;
-//        case (op_set) // handle the start signal
-//            no_op: begin : case_no_op
-//                @(negedge clk);
-//                start                             = 1'b0;
-//            end
-//            rst_op: begin : case_rst_op
-//                reset_alu();
-//            end
-//            default: begin : case_default
-//                wait(done);
-//                @(negedge clk);
-//                start                             = 1'b0;
-//
-//                //------------------------------------------------------------------------------
-//                // temporary data check - scoreboard will do the job later
-//                begin
-//                    automatic bit [15:0] expected = get_expected(A, B, op_set);
-//                    assert(result === expected) begin
-//                        `ifdef DEBUG
-//                        $display("Test passed for A=%0d B=%0d op_set=%0d", A, B, op);
-//                        `endif
-//                    end
-//                    else begin
-//                        $display("Test FAILED for A=%0d B=%0d op_set=%0d", A, B, op);
-//                        $display("Expected: %d  received: %d", expected, result);
-//                        test_result = "FAILED";
-//                    end;
-//                end
-//
-//            end
-//        endcase // case (op_set)
-//    // print coverage after each loop
-//    // $strobe("%0t coverage: %.4g\%",$time, $get_coverage());
-//    // if($get_coverage() == 100) break;
-//    end
-//    $finish;
-//end : tester
+initial begin : tester
+    reset_alu();
+	repeat (100) begin : tester_main
+		@(negedge clk);		
+		input_data_1 = get_data();
+		input_data_2 = get_data();
+		input_cmd = get_cmd();
+		
+		enable_n = 1'b0;	
+		send_word(input_data_1);
+		send_word(input_data_2);
+		send_word(input_cmd);
+		enable_n = 1'b1;
+		
+		wait(dout_valid);
+		receive_word(output_status);
+		receive_word(output_data_1);
+		receive_word(output_data_2);
+		
+		expected_result = get_expected(input_data_1, input_data_2, input_cmd);
+		
+		assert(expected_result == {output_status, output_data_1, output_data_2}) begin
+			test_result = test_result;
+		end
+		else begin
+			test_result = "FAILED";
+		end
+	end : tester_main
+	$finish;
+end : tester
 
 //------------------------------------------------------------------------------
 // reset task
 //------------------------------------------------------------------------------
 task reset_alu();
-    `ifdef DEBUG
-    $display("%0t DEBUG: reset_alu", $time);
-    `endif
+    //`ifdef DEBUG
+    //$display("%0t DEBUG: reset_alu", $time);
+    //`endif
     enable_n   = 1'b1;
     rst_n = 1'b0;
     @(negedge clk);
@@ -143,7 +141,7 @@ endtask
 // send word task
 //------------------------------------------------------------------------------
 task send_word(
-		bit [9:0] input_word
+		bit [0:9] input_word
 	);
 	//enable_n = 1'b0;
 	int i;
@@ -153,30 +151,53 @@ task send_word(
 	end
 endtask
 //------------------------------------------------------------------------------
+// receive word task
+//------------------------------------------------------------------------------
+task receive_word(output [0:9] word);
+	bit [0:9] rcvd_word;
+	int i;
+	for (i = 0; i < 10; i++) begin
+		@(negedge clk);
+		rcvd_word[i] = dout;		
+	end
+	word = rcvd_word;
+endtask
+//------------------------------------------------------------------------------
 // calculate expected result
 //------------------------------------------------------------------------------
-//function logic [15:0] get_expected(
-//        bit [7:0] A,
-//        bit [7:0] B,
-//        operation_t op_set
-//    );
-//    bit [15:0] ret;
-//    `ifdef DEBUG
-//    $display("%0t DEBUG: get_expected(%0d,%0d,%0d)",$time, A, B, op_set);
-//    `endif
-//    case(op_set)
-//        and_op : ret = A & B;
-//        add_op : ret = A + B;
-//        mul_op : ret = A * B;
-//        xor_op : ret = A ^ B;
-//        default: begin
-//            $display("%0t INTERNAL ERROR. get_expected: unexpected case argument: %s", $time, op_set);
-//            test_result = "FAILED";
-//            return -1;
-//        end
-//    endcase
-//    return(ret);
-//endfunction
+
+function logic [29:0] get_expected(
+		bit [9:0] in1,
+		bit [9:0] in2,
+		command_t cmd
+	);
+	bit [15:0] result;
+	bit [9:0] status;
+	bit [29:0] ret_val;
+	case(cmd)
+		cmd_and : begin
+			status = sts_noerr;
+			result = in1[8:1] & in2[8:1];
+		end
+		cmd_add : begin
+			status = sts_noerr;
+			result = in1[8:1] + in2[8:1];
+		end
+		default: begin
+			status = sts_invcmd;
+			result = 0;
+		end
+	endcase
+	ret_val[29:20] = status;
+	ret_val[19] = 1'b0;
+	ret_val[18:11] = result[15:8];
+	ret_val[10] = ^ret_val[19:11];
+	ret_val[9] = 1'b0;
+	ret_val[8:1] = result[7:0];
+	ret_val[0] = ^ret_val[9:1];
+	return(ret_val);
+endfunction
+
 //------------------------------------------------------------------------------
 // Temporary. The scoreboard data will be later used.
 final begin : finish_of_the_test
@@ -184,3 +205,4 @@ final begin : finish_of_the_test
 end
 //------------------------------------------------------------------------------
 endmodule : top
+
