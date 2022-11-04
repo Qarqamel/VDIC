@@ -7,12 +7,12 @@ module top;
 
 typedef enum bit[9:0] {
 	cmd_and = 10'b1000000010,
-    	cmd_add = 10'b1000100000,
+	cmd_add = 10'b1000100000,
 	cmd_inv = 10'b1100000000
 } command_t;
 
 typedef enum bit[9:0] {
-	sts_noerr = 10'b1000000001,
+	sts_noerr =  10'b1000000001,
     sts_invcmd = 10'b1100000000
 } status_t;
 
@@ -143,7 +143,6 @@ endtask
 task send_word(
 		bit [0:9] input_word
 	);
-	//enable_n = 1'b0;
 	int i;
 	for (i = 0; i < 10; i++) begin
 		din = input_word[i];
