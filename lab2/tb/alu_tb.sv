@@ -48,11 +48,11 @@ wire               dout;
 wire        	   dout_valid;
 
 command_t          input_cmd;
-bit [9:0]		   input_data_1, input_data_2;
-bit	[9:0] 		   output_status, output_data_1, output_data_2;
-bit				   output_rcvd_flag;
+bit [9:0]          input_data_1, input_data_2;
+bit [9:0]          output_status, output_data_1, output_data_2;
+bit                output_rcvd_flag;
 	
-bit [29:0]		   expected_result;
+bit [29:0]         expected_result;
 test_result_t      test_result = TEST_PASSED;
 
 //------------------------------------------------------------------------------
