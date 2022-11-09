@@ -39,7 +39,7 @@ typedef enum {
 // variable definitions
 //------------------------------------------------------------------------------
 
-bit				   din;
+bit                din;
 bit                clk;
 bit                rst_n;
 bit                enable_n;
