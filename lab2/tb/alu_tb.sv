@@ -130,7 +130,8 @@ initial begin : coverage
     mma = new();
     forever begin : sample_cov
         @(negedge clk);
-        if(!enable_n || !rst_n) begin
+        if(!enable_n && rst_n) begin
+	        //$dispaly("")												!!!!!!!!!!!
             cc.sample();
             mma.sample();
         end
