@@ -82,16 +82,6 @@ bit                enable_n;
 wire               dout;
 wire        	   dout_valid;
 
-/*
-command_t          input_cmd;
-bit [9:0]          input_data_1, input_data_2;
-bit [9:0]          output_status, output_data_1, output_data_2;
-bit                output_rcvd_flag;
-	
-bit [29:0]         expected_result;
-test_result_t      test_result = TEST_PASSED;
-*/
-
 single_op_input_t	single_op_input;
 
 bit [9:0]			output_status;
@@ -204,7 +194,7 @@ initial begin : coverage
             cc.sample();
             mma.sample();
 	        noa.sample();
-        	$display("%0t Test passed for data=%0d op_set=%0d", $time, single_op_input.data, single_op_input.cmd);
+	        single_op_input = single_op_input;
         end
     end
 end : coverage
@@ -227,7 +217,7 @@ end
 
 initial begin : tester
     reset_alu();
-	repeat (500) begin : tester_main
+	repeat (1000) begin : tester_main
 		@(negedge clk);
 		output_rcvd_flag = 0;
 		single_op_input = get_random_input();
