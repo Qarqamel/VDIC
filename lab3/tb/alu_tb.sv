@@ -191,10 +191,10 @@ initial begin : coverage
     forever begin : sample_cov
         @(negedge clk);
         if(!enable_n || !rst_n) begin
+	        #1
             cc.sample();
             mma.sample();
 	        noa.sample();
-	        single_op_input = single_op_input;
         end
     end
 end : coverage
