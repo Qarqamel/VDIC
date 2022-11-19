@@ -66,6 +66,25 @@ class triangle extends shape;
 	
 endclass
 
+class shape_reporter #(type T=shape);
+	
+	protected static T shape_storage[$];
+	
+	static function void store_shape(T s);
+		shape_storage.push_back(s);
+	endfunction
+	
+	static function void report_shapes();
+		real area_sum = 0;
+		foreach(shape_storage[i]) begin
+			shape_storage[i].print();
+			area_sum += shape_storage[i].get_area();
+		end
+		$display("Total area: %g\n", area_sum);
+	endfunction
+			
+endclass	
+
 class shape_factory;
 	
 	static function shape make_shape(string shape_type, real w, real h);
@@ -77,14 +96,17 @@ class shape_factory;
 		case(shape_type)
 			"rectangle": begin
 				rectangle_h = new(w,h);
+				shape_reporter#(rectangle)::store_shape(rectangle_h);
 				return rectangle_h;
 			end
 			"square": begin
 				square_h = new(w);
+				shape_reporter#(square)::store_shape(square_h);
 				return square_h;
 			end
 			"triangle": begin
 				triangle_h = new(w,h);
+				shape_reporter#(triangle)::store_shape(triangle_h);
 				return triangle_h;
 			end
 			default: 
@@ -94,62 +116,40 @@ class shape_factory;
 	
 endclass
 
-class animal_cage #(type T=animal);
-
-   static T cage[$];
-
-   static function void cage_animal(T l);
-      cage.push_back(l);
-   endfunction : cage_animal
-
-   static function void list_animals();
-      $display("Animals in cage:"); 
-      foreach (cage[i])
-        $display(cage[i].get_name());
-   endfunction : list_animals
-
-endclass : animal_cage
-
-class shape_reporter #(type T=shape);
+module top;
 	
-	protected static T rectangle_storage[$];
-	protected static T square_storage[$];
-	protected static T triangle_storage[$];
-	
-	static function void store_shape(string shape_type, T s);
-		case (shape_type)
-			"rectangle":
-				rectangle_storage.push_back(s);
-			"square":
-				square_storage.push_back(s);
-			"triangle":
-				triangle_storage.push_back(s);
-			default:
-				$fatal (1, {"No such shape: ", shape_type});
-		endcase
-	endfunction
-	
-	static function void report_shapes();
-		real area_sum = 0;
-		foreach (rectangle_storage[i]) begin
-			rectangle_storage[i].print();
-			area_sum += rectangle_storage[i].get_area();
+	initial begin
+		
+		rectangle rectangle_h;
+		square square_h;
+		triangle triangle_h;
+		
+		int file;
+		string shape_type;
+		real width;
+		real height;
+		
+		file = $fopen("./lab04part1_shapes.txt", "r");
+		
+		while($fscanf(file, "%s %g %g", shape_type, width, height) == 3) begin
+			case(shape_type)
+				"rectangle":
+					$cast(rectangle_h, shape_factory::make_shape(shape_type, width, height));
+				"square":
+					$cast(square_h, shape_factory::make_shape(shape_type, width, height));
+				"triangle":
+					$cast(triangle_h, shape_factory::make_shape(shape_type, width, height));
+				default:
+					$fatal (1, {"No such shape: ", shape_type});
+			endcase
 		end
-		$display("Total area: %g\n", area_sum);
-		area_sum = 0;
-		foreach (rectangle_storage[i]) begin
-			rectangle_storage[i].print();
-			area_sum += rectangle_storage[i].get_area();
-		end
-		$display("Total area: %g\n", area_sum);
-		area_sum = 0;
-		foreach (rectangle_storage[i]) begin
-			rectangle_storage[i].print();
-			area_sum += rectangle_storage[i].get_area();
-		end
-		$display("Total area: %g\n", area_sum);
-	endfunction
+
+		shape_reporter#(rectangle)::report_shapes();
+		shape_reporter#(square)::report_shapes();
+		shape_reporter#(triangle)::report_shapes();
+		
+		$fclose(file);
+		
+	end
 	
-endclass	
-
-
+endmodule
