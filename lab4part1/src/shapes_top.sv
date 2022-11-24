@@ -120,9 +120,9 @@ module top;
 	
 	initial begin
 		
-		rectangle rectangle_h;
-		square square_h;
-		triangle triangle_h;
+//		rectangle rectangle_h;
+//		square square_h;
+//		triangle triangle_h;
 		
 		int file;
 		string shape_type;
@@ -132,16 +132,17 @@ module top;
 		file = $fopen("./lab04part1_shapes.txt", "r");
 		
 		while($fscanf(file, "%s %g %g", shape_type, width, height) == 3) begin
-			case(shape_type)
-				"rectangle":
-					$cast(rectangle_h, shape_factory::make_shape(shape_type, width, height));
-				"square":
-					$cast(square_h, shape_factory::make_shape(shape_type, width, height));
-				"triangle":
-					$cast(triangle_h, shape_factory::make_shape(shape_type, width, height));
-				default:
-					$fatal (1, {"No such shape: ", shape_type});
-			endcase
+			void'(shape_factory::make_shape(shape_type, width, height));
+//			case(shape_type)
+//				"rectangle":
+//					$cast(rectangle_h, );
+//				"square":
+//					$cast(square_h, shape_factory::make_shape(shape_type, width, height));
+//				"triangle":
+//					$cast(triangle_h, shape_factory::make_shape(shape_type, width, height));
+//				default:
+//					$fatal (1, {"No such shape: ", shape_type});
+//			endcase
 		end
 
 		shape_reporter#(rectangle)::report_shapes();
