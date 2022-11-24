@@ -90,7 +90,7 @@ initial begin : coverage
     mma = new();
 	noa = new();
     forever begin : sample_cov
-        @(negedge bfm.clk);
+        @(posedge bfm.clk);
         if(!bfm.enable_n || !bfm.rst_n) begin
 	        sin_op = bfm.single_op_input;
             cc.sample();

@@ -189,7 +189,7 @@ initial begin : coverage
     mma = new();
 	noa = new();
     forever begin : sample_cov
-        @(negedge clk);
+        @(posedge clk);
         if(!enable_n || !rst_n) begin
 	        #1
             cc.sample();

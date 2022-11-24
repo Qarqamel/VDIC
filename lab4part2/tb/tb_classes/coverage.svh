@@ -93,7 +93,7 @@ class coverage;
 	
 	task execute();
 		forever begin : sample_cov
-	        @(negedge bfm.clk);
+	        @(posedge bfm.clk);
 	        if(!bfm.enable_n || !bfm.rst_n) begin
 		        sin_op = bfm.single_op_input;
 	            cmd_cov.sample();
