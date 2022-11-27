@@ -18,9 +18,12 @@ class tester;
 	protected function single_op_input_t get_random_input();
 		single_op_input_t ret_data;
 		// for now only use correct parity input data
-		ret_data.parity = parity_correct;
+		case ($urandom_range(10, 0))
+			0: ret_data.parity = parity_wrong;
+			default: ret_data.parity = parity_correct;
+		endcase
 		// only valid nr of args
-		ret_data.arg_number = arg_num_t'($urandom_range(9,2));
+		ret_data.arg_number = arg_num_t'($urandom_range(10,2));
 	
 		case ($urandom_range(3, 0))
 			0: ret_data.data_val = all_zeros;
@@ -80,7 +83,7 @@ class tester;
 	    bfm.reset_alu();
 		repeat (1000) begin : tester_main
 			
-			//@(negedge clk);
+			@(negedge bfm.clk);
 			
 			bfm.output_rcvd_flag = 0;
 			bfm.single_op_input = get_random_input();

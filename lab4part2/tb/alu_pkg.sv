@@ -46,9 +46,10 @@ package alu_pkg;
 		data_value_t		data_val;
 	} single_op_input_t;
 	
-	typedef enum bit[9:0] {
-		sts_noerr =  10'b1000000001,
-		sts_invcmd = 10'b1100000000
+	typedef enum bit[8:0] {
+		sts_noerr =  9'b100000000,
+		sts_invcmd = 9'b110000000,
+		sts_parerr = 9'b100100000
 	} status_t;
 	
 `include "coverage.svh"

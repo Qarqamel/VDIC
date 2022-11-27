@@ -65,8 +65,8 @@ class coverage;
 		}
 		
 		data_nr_of_args : coverpoint sin_op.arg_number{
-			bins valid = {[2:9]};
-			bins invalid = {[0:1], 10};
+			bins valid = {[2:10]};
+			bins invalid = {[0:1]};
 		}
 		
 		C_cmd_nr_args : cross data_nr_of_args, all_cmd{
@@ -84,11 +84,45 @@ class coverage;
 		}
 	endgroup
 	
+	covergroup data_parity;
+		
+		option.name = "cg_data_parity";
+	
+		all_cmd : coverpoint sin_op.cmd{
+			ignore_bins null_ops = {cmd_rst};
+		}
+		
+		data_parity : coverpoint sin_op.parity{
+			bins correct = parity_correct;
+			bins wrong = parity_wrong;
+		}
+		
+		D_cmd_parity : cross data_parity, all_cmd{
+			
+			bins D0_nop_correct = binsof (all_cmd) intersect {cmd_nop} && (binsof (data_parity.correct));
+			bins D0_and_correct = binsof (all_cmd) intersect {cmd_and} && (binsof (data_parity.correct));
+			bins D0_or_correct = binsof (all_cmd) intersect {cmd_or} && (binsof (data_parity.correct));
+			bins D0_xor_correct = binsof (all_cmd) intersect {cmd_xor} && (binsof (data_parity.correct));
+			bins D0_add_correct = binsof (all_cmd) intersect {cmd_add} && (binsof (data_parity.correct));
+			bins D0_sub_correct = binsof (all_cmd) intersect {cmd_sub} && (binsof (data_parity.correct));		
+			bins D0_inv_correct = binsof (all_cmd) intersect {cmd_inv} && (binsof (data_parity.correct));
+			
+			bins D0_nop_wrong = binsof (all_cmd) intersect {cmd_nop} && (binsof (data_parity.wrong));
+			bins D0_and_wrong = binsof (all_cmd) intersect {cmd_and} && (binsof (data_parity.wrong));
+			bins D0_or_wrong = binsof (all_cmd) intersect {cmd_or} && (binsof (data_parity.wrong));
+			bins D0_xor_wrong = binsof (all_cmd) intersect {cmd_xor} && (binsof (data_parity.wrong));
+			bins D0_add_wrong = binsof (all_cmd) intersect {cmd_add} && (binsof (data_parity.wrong));
+			bins D0_sub_wrong = binsof (all_cmd) intersect {cmd_sub} && (binsof (data_parity.wrong));		
+			bins D0_inv_wrong = binsof (all_cmd) intersect {cmd_inv} && (binsof (data_parity.wrong));
+		}
+	endgroup
+	
 	function new (virtual alu_bfm b);
 		bfm = b;
 		cmd_cov = new();
 		min_max_arg = new();
 		nr_of_args = new();
+		data_parity = new();
 	endfunction
 	
 	task execute();
@@ -99,6 +133,7 @@ class coverage;
 	            cmd_cov.sample();
 	            min_max_arg.sample();
 		        nr_of_args.sample();
+		        data_parity.sample();
 	        end
 	    end
 	endtask
