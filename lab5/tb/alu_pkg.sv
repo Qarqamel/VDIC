@@ -85,8 +85,10 @@ package alu_pkg;
 `include "scoreboard.svh"
 `include "tester.svh"
 `include "random_tester.svh"
+`include "max_tester.svh"
 `include "env.svh"
 
 `include "random_test.svh"
+`include "max_test.svh"
 	
 endpackage : alu_pkg
