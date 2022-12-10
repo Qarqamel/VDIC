@@ -21,9 +21,6 @@ bit [9:0]			output_status;
 bit [19:0]			output_data;
 
 bit					output_rcvd_flag;
-//bit [29:0]			expected_result;
-
-//modport tlm (import reset_alu, send_word, receive_word);
 
 operation_monitor operation_monitor_h;
 result_monitor result_monitor_h;
@@ -94,18 +91,19 @@ task send_op(input single_op_input_t op);
 	
 	output_rcvd_flag = 0;
 	single_op_input = op;
-
+		
 	case(single_op_input.cmd)
 		cmd_rst: begin
 			reset_alu();
 		end
-		cmd_nop: begin	
+		cmd_nop: begin
 			for(int i = 0; i < single_op_input.arg_number; i++) begin
 				send_word(single_op_input.data[(i*10)+:10]);	
 			end
 			send_word(single_op_input.cmd);
+			output_rcvd_flag = 1;
 		end
-		default: begin	
+		default: begin
 			for(int i = 0; i < single_op_input.arg_number; i++) begin
 				send_word(single_op_input.data[(i*10)+:10]);	
 			end
@@ -123,40 +121,36 @@ task send_op(input single_op_input_t op);
 endtask
 
 //------------------------------------------------------------------------------
-// write operation monitor
+// write operation and result monitors
 //------------------------------------------------------------------------------
 
 always @(posedge clk) begin : op_monitor
-    static bit in_command = 0;
     single_op_input_t op_in;
-    if (!enable_n) begin : start_high
-        if (!in_command) begin : new_command
-	        op_in = single_op_input;
-            operation_monitor_h.write_to_monitor(op_in);
-            in_command = 1;
-        end : new_command
+	result_t current_result;
+    if (output_rcvd_flag) begin : start_high
+	    case(single_op_input.cmd)
+		    cmd_rst, cmd_nop: begin
+			    op_in = single_op_input;
+			    operation_monitor_h.write_to_monitor(op_in);
+	    	end
+	    	default: begin
+			    op_in = single_op_input;
+		    	current_result.data = {output_status, output_data};
+		        //$display("%0t Writing to monitor Data=%0d op_set=%0d", $time, single_op_input.data, single_op_input.cmd);
+		        operation_monitor_h.write_to_monitor(op_in);
+		    	result_monitor_h.write_to_monitor(current_result);
+	    	end
+	    endcase
     end : start_high
-    else // start low
-        in_command = 0;
 end : op_monitor
 
 always @(negedge rst_n) begin : rst_monitor
     single_op_input_t op_in;
     op_in.cmd = cmd_rst;
-    if (operation_monitor_h != null) //guard against VCS time 0 negedge
+    if (operation_monitor_h != null) begin//guard against VCS time 0 negedge
+    	//$display("%0t Writing to monitor Data=%0d op_set=%0d", $time, op_in.data, op_in.cmd);
         operation_monitor_h.write_to_monitor(op_in);
-end : rst_monitor
-
-//------------------------------------------------------------------------------
-// write result monitor
-//------------------------------------------------------------------------------
-
-initial begin : result_monitor_thread
-    forever begin
-        @(posedge clk) ;
-        if (output_rcvd_flag)
-            result_monitor_h.write_to_monitor({output_status, output_data});
     end
-end : result_monitor_thread
+end : rst_monitor
 
 endinterface : alu_bfm

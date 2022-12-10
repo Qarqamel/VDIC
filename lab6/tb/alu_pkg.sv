@@ -41,13 +41,17 @@ package alu_pkg;
 		random
 	} data_value_t;
 	
-	 typedef struct {
+	typedef struct packed{
 		command_t			cmd;
 		bit [99:0]			data;
 		arg_num_t			arg_number;
 		parity_t			parity;
 		data_value_t		data_val;
 	} single_op_input_t;
+	
+	typedef struct packed{
+		bit [29:0]			data;
+	} result_t;
 	
 	typedef enum bit[8:0] {
 		sts_noerr =  9'b100000000,

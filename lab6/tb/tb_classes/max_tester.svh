@@ -38,44 +38,5 @@ class max_tester extends random_tester;
 		return ret_data;
 	endfunction : get_input
 
-//	protected function command_t get_cmd();
-//		bit [2:0] cmd_choice;
-//		cmd_choice = 3'($random);
-//		case (cmd_choice)
-//			3'b000 : return cmd_nop;
-//			3'b001 : return cmd_and;
-//			3'b010 : return cmd_or;
-//			3'b011 : return cmd_xor;
-//			3'b100 : return cmd_add;
-//			3'b101 : return cmd_sub;
-//			3'b110 : return cmd_inv;
-//			3'b111 : return cmd_rst;
-//		endcase
-//	endfunction : get_cmd
-//	
-//	protected function bit [9:0] get_data(data_value_t dat_val, parity_t par);
-//		bit [9:0] data;
-//	    bit [1:0] zero_ones;
-//		data[9] = 0;
-//		case(dat_val)
-//			random: begin
-//			    zero_ones = 2'($random);
-//			    if (zero_ones == 2'b00)
-//			        data[8:1] = 8'h00;
-//			    else if (zero_ones == 2'b11)
-//			        data[8:1] = 8'hFF;
-//			    else
-//			        data[8:1] =  8'($random);
-//			end
-//			all_zeros: data[8:1] = 8'h00;
-//			all_ones: data[8:1] = 8'hFF;
-//		endcase
-//		case(par)
-//			parity_correct: data[0] = ^data[9:1];
-//			parity_wrong: data[0] = ~(^data[9:1]);
-//		endcase
-//	    return data;
-//	endfunction
-
 endclass : max_tester
 

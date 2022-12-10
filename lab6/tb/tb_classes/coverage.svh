@@ -139,31 +139,5 @@ class coverage extends uvm_subscriber #(single_op_input_t);
         nr_of_args.sample();
         data_parity.sample();
     endfunction : write
-
-//------------------------------------------------------------------------------
-// build phase
-//------------------------------------------------------------------------------
-
-//	function void build_phase(uvm_phase phase);
-//        if(!uvm_config_db #(virtual alu_bfm)::get(null, "*","bfm", bfm))
-//            $fatal(1,"Failed to get BFM");
-//	endfunction : build_phase
-
-//------------------------------------------------------------------------------
-// run phase
-//------------------------------------------------------------------------------
-
-//	task run_phase(uvm_phase phase);
-//		forever begin : sample_cov
-//	        @(posedge bfm.clk);
-//	        if(!bfm.enable_n || !bfm.rst_n) begin
-//		        sin_op = bfm.single_op_input;
-//	            cmd_cov.sample();
-//	            min_max_arg.sample();
-//		        nr_of_args.sample();
-//		        data_parity.sample();
-//	        end
-//	    end
-//	endtask
 	
 endclass

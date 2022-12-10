@@ -1,5 +1,5 @@
 
-class scoreboard extends uvm_subscriber #(bit [29:0]);
+class scoreboard extends uvm_subscriber #(result_t);
 	`uvm_component_utils(scoreboard)
 
 //------------------------------------------------------------------------------
@@ -117,55 +117,29 @@ class scoreboard extends uvm_subscriber #(bit [29:0]);
 //------------------------------------------------------------------------------
 // subscriber write function
 //------------------------------------------------------------------------------
-    function void write(bit [29:0] t);
-        bit [29:0] predicted_result;
-	    
+    function void write(result_t t);
+	    	    
+        result_t predicted_result;	    
         single_op_input_t op;
+
         do
             if (!op_in.try_get(op))
                 $fatal(1, "Missing command in self checker");
         while ((op.cmd == cmd_nop) || (op.cmd == cmd_rst));
 
-        predicted_result = get_expected(op);
+        predicted_result.data = get_expected(op);
 
         SCOREBOARD_CHECK:
-        assert (predicted_result == t) begin
+        assert (predicted_result.data == t.data) begin
            `ifdef DEBUG
             $display("%0t Test passed for Data=%0d op_set=%0d", $time, op.data, op.cmd);
             `endif
         end
         else begin
-            $error ("FAILED: Data: %0h op: %s result: %0h", op.data, op.cmd.name(), t);
+            $error ("FAILED: Data: %0h op: %s result: %0h", op.data, op.cmd.name(), t.data);
             tr = TEST_FAILED;
         end
     endfunction : write
-
-//------------------------------------------------------------------------------
-// run phase
-//------------------------------------------------------------------------------
-
-//	task run_phase(uvm_phase phase);
-//		forever begin
-//			@(negedge bfm.clk) 
-//		    if(bfm.output_rcvd_flag) begin:verify_result
-//		        bit [29:0] predicted_result;
-//		
-//		        predicted_result = get_expected(bfm.single_op_input);
-//
-//		        CHK_RESULT: assert({bfm.output_status, bfm.output_data} === predicted_result) begin
-//		           `ifdef DEBUG
-//		            $display("%0t Test passed for Data=%0d op_set=%0d", 
-//			            $time, bfm.single_op_input.data, bfm.single_op_input.cmd);
-//		           `endif
-//		        end
-//		        else begin
-//		            $error("%0t Test FAILED for in=%0d cmd=%0d\nExpected: %d  received: %d",
-//		                $time, bfm.single_op_input.data, bfm.single_op_input.cmd , predicted_result, {bfm.output_status, bfm.output_data});
-//		        	tr = TEST_FAILED;
-//		        end
-//		    end
-//		end		
-//	endtask
 
 //------------------------------------------------------------------------------
 // report phase
