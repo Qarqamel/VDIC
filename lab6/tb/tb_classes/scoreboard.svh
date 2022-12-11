@@ -136,7 +136,7 @@ class scoreboard extends uvm_subscriber #(result_t);
             `endif
         end
         else begin
-            $error ("FAILED: Data: %0h op: %s result: %0h", op.data, op.cmd.name(), t.data);
+            $error ("FAILED: Data: %0h, op: %s, arg_nr: %s, parity: %s, result: %0h", op.data, op.cmd.name(), op.arg_number.name(), op.parity.name(), t.data);
             tr = TEST_FAILED;
         end
     endfunction : write
