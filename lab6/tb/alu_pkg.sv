@@ -6,14 +6,14 @@ package alu_pkg;
     `include "uvm_macros.svh"
 	
 	typedef enum bit[9:0] {
-		cmd_nop = 10'b1000000001,
-		cmd_and = 10'b1000000010,
-		cmd_or =  10'b1000000100,
-		cmd_xor = 10'b1000000111,
-		cmd_add = 10'b1000100000,
-		cmd_sub = 10'b1001000000,
-		cmd_inv = 10'b1100000000,
-		cmd_rst = 10'b1111111111
+		cmd_nop = 10'b1000000000,
+		cmd_and = 10'b1000000011,
+		cmd_or =  10'b1000000101,
+		cmd_xor = 10'b1000000110,
+		cmd_add = 10'b1000100001,
+		cmd_sub = 10'b1001000001,
+		cmd_inv = 10'b1100000001,
+		cmd_rst = 10'b1111111110
 	} command_t;
 	
 	typedef enum int {
