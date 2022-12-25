@@ -42,9 +42,6 @@ end
 //------------------------------------------------------------------------------
 
 task reset_alu();
-    //`ifdef DEBUG
-    //$display("%0t DEBUG: reset_alu", $time);
-    //`endif
     enable_n   = 1'b1;
     rst_n = 1'b0;
     @(negedge clk);
@@ -87,7 +84,6 @@ endtask
 
 task send_op(input single_op_input_t op);
 	bit parity_bit;
-	//$display("%0t Writing to monitor Data=%0d op_set=%s", $time, op.data, op.cmd.name());
 	@(negedge clk);
 	
 	output_rcvd_flag = 0;
@@ -142,7 +138,6 @@ endtask
 //------------------------------------------------------------------------------
 
 always @(posedge clk) begin : op_monitor
-    //operation_transaction op_in;
 	result_t current_result;
     if (output_rcvd_flag) begin : start_high
 	    case(single_op_input.cmd)
@@ -151,7 +146,6 @@ always @(posedge clk) begin : op_monitor
 	    	end
 	    	default: begin
 		    	current_result.data = {output_status, output_data};
-		        //$display("%0t Writing to monitor Data=%0d op_set=%s", $time, single_op_input.data, single_op_input.cmd.name());
 		        operation_monitor_h.write_to_monitor(single_op_input);
 		    	result_monitor_h.write_to_monitor(current_result);
 	    	end
@@ -163,7 +157,6 @@ always @(negedge rst_n) begin : rst_monitor
     single_op_input_t op_in;
     op_in.cmd = cmd_rst;
     if (operation_monitor_h != null) begin//guard against VCS time 0 negedge
-    	//$display("%0t Writing to monitor Data=%0d op_set=%0d", $time, op_in.data, op_in.cmd);
         operation_monitor_h.write_to_monitor(op_in);
     end
 end : rst_monitor
