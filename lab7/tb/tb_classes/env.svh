@@ -28,7 +28,7 @@ class env extends uvm_env;
 	    operation_f  			= new("operation_f", this);
 	    
         tester_h     			= tester::type_id::create("tester_h",this);
-	    driver_h	 			= driver::type_id::create("drive_h",this);
+	    driver_h	 			= driver::type_id::create("driver_h",this);
         coverage_h   			= coverage::type_id::create ("coverage_h",this);
         scoreboard_h 			= scoreboard::type_id::create("scoreboard_h",this);
 	    operation_monitor_h 	= operation_monitor::type_id::create("operation_monitor_h",this);

@@ -45,6 +45,7 @@ class tester extends uvm_component;
         op_in    = operation_transaction::type_id::create("op_in");
         repeat (1000) begin
             assert(op_in.randomize());
+            //$display("%0t Writing to monitor Data=%0d op_set=%s, %d", $time, op_in.sin_op_in.data, op_in.sin_op_in.cmd.name());
             operation_in_port.put(op_in);
         end
 

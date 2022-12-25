@@ -6,15 +6,14 @@ class operation_transaction extends uvm_transaction;
 // transaction variables
 //------------------------------------------------------------------------------
 
-	single_op_input_t sin_op_in;
+	rand single_op_input_t sin_op_in;
 
 //------------------------------------------------------------------------------
 // constraints
 //------------------------------------------------------------------------------
 	
 	constraint data {
-		sin_op_in.arg_number dist {[0 : 10] := 1};
-		sin_op_in.data_val dist {all_zeros := 2, random := 1, all_ones := 2};
+		sin_op_in.arg_number dist {[2 : 10] := 1};
 	}
 	
 //    constraint data {
@@ -83,7 +82,7 @@ class operation_transaction extends uvm_transaction;
 
     function string convert2string();
         string s;
-        s = $sformatf("Data: %h  Command: %s", sin_op_in.data, sin_op_in.cmd.name());
+        s = $sformatf("Data: %h Cmd: %s", sin_op_in.data, sin_op_in.cmd.name());
         return s;
     endfunction : convert2string
 

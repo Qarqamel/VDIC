@@ -86,7 +86,8 @@ endtask
 //------------------------------------------------------------------------------
 
 task send_op(input single_op_input_t op);
-
+	bit parity_bit;
+	//$display("%0t Writing to monitor Data=%0d op_set=%s", $time, op.data, op.cmd.name());
 	@(negedge clk);
 	
 	output_rcvd_flag = 0;
@@ -98,16 +99,32 @@ task send_op(input single_op_input_t op);
 		end
 		cmd_nop: begin
 			for(int i = 0; i < single_op_input.arg_number; i++) begin
-				send_word(single_op_input.data[(i*10)+:10]);	
+				case(op.data_parity)
+					parity_correct: parity_bit = ^single_op_input.data[(i*8)+:8];
+					parity_wrong: parity_bit = ~(^single_op_input.data[(i*8)+:8]);
+				endcase
+				send_word({1'b0, single_op_input.data[(i*8)+:8], parity_bit});
 			end
-			send_word(single_op_input.cmd);
+			case(op.cmd_parity)
+				parity_correct: parity_bit = ^single_op_input.cmd;
+				parity_wrong: parity_bit = ~(^single_op_input.cmd);
+			endcase
+			send_word({single_op_input.cmd, parity_bit});
 			output_rcvd_flag = 1;
 		end
 		default: begin
 			for(int i = 0; i < single_op_input.arg_number; i++) begin
-				send_word(single_op_input.data[(i*10)+:10]);	
+				case(op.data_parity)
+					parity_correct: parity_bit = ^single_op_input.data[(i*8)+:8];
+					parity_wrong: parity_bit = ~(^single_op_input.data[(i*8)+:8]);
+				endcase
+				send_word({1'b0, single_op_input.data[(i*8)+:8], parity_bit});	
 			end
-			send_word(single_op_input.cmd);
+			case(op.cmd_parity)
+				parity_correct: parity_bit = ^single_op_input.cmd;
+				parity_wrong: parity_bit = ~(^single_op_input.cmd);
+			endcase
+			send_word({single_op_input.cmd, parity_bit});
 			
 			receive_word(output_status);
 			receive_word(output_data[19:10]);
@@ -134,7 +151,7 @@ always @(posedge clk) begin : op_monitor
 	    	end
 	    	default: begin
 		    	current_result.data = {output_status, output_data};
-		        //$display("%0t Writing to monitor Data=%0d op_set=%0d", $time, single_op_input.data, single_op_input.cmd);
+		        //$display("%0t Writing to monitor Data=%0d op_set=%s", $time, single_op_input.data, single_op_input.cmd.name());
 		        operation_monitor_h.write_to_monitor(single_op_input);
 		    	result_monitor_h.write_to_monitor(current_result);
 	    	end

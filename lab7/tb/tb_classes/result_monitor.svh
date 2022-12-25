@@ -23,6 +23,7 @@ class result_monitor extends uvm_component;
         `ifdef DEBUG
         $display ("RESULT MONITOR: resultA: 0x%0h",r.data);
         `endif
+        res = new("res");
         res.result = r;
         ap.write(res);
     endfunction : write_to_monitor

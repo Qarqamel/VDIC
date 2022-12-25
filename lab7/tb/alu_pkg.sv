@@ -5,15 +5,15 @@ package alu_pkg;
 	import uvm_pkg::*;
     `include "uvm_macros.svh"
 	
-	typedef enum bit[9:0] {
-		cmd_nop = 10'b1000000000,
-		cmd_and = 10'b1000000011,
-		cmd_or =  10'b1000000101,
-		cmd_xor = 10'b1000000110,
-		cmd_add = 10'b1000100001,
-		cmd_sub = 10'b1001000001,
-		cmd_inv = 10'b1100000001,
-		cmd_rst = 10'b1111111110
+	typedef enum bit[8:0] {
+		cmd_nop = 9'b100000000,
+		cmd_and = 9'b100000001,
+		cmd_or =  9'b100000010,
+		cmd_xor = 9'b100000011,
+		cmd_add = 9'b100010000,
+		cmd_sub = 9'b100100000,
+		cmd_inv = 9'b110000000,
+		cmd_rst = 9'b111111111
 	} command_t;
 	
 	typedef enum int {
@@ -27,7 +27,8 @@ package alu_pkg;
 		arg_num_7 = 7,
 		arg_num_8 = 8,
 		arg_num_9 = 9,
-		arg_num_10 = 10
+		arg_num_10 = 10,
+		arg_num_11 = 11
 	} arg_num_t;
 	
 	typedef enum logic {
@@ -43,10 +44,10 @@ package alu_pkg;
 	
 	typedef struct packed{
 		command_t			cmd;
-		bit [99:0]			data;
+		bit [79:0]			data;
 		arg_num_t			arg_number;
-		parity_t			parity;
-		data_value_t		data_val;
+		parity_t			data_parity;
+		parity_t			cmd_parity;
 	} single_op_input_t;
 	
 	typedef struct packed{
@@ -56,7 +57,8 @@ package alu_pkg;
 	typedef enum bit[8:0] {
 		sts_noerr =  9'b100000000,
 		sts_invcmd = 9'b110000000,
-		sts_parerr = 9'b100100000
+		sts_parderr = 9'b100100000,
+		sts_parcerr = 9'b101000000
 	} status_t;
 	
 	typedef enum {

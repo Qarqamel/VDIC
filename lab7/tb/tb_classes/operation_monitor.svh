@@ -23,6 +23,7 @@ class operation_monitor extends uvm_component;
         `ifdef DEBUG
         $display("COMMAND MONITOR: Data:0x%2h op: %s", cmd.data, cmd.cmd.name());
         `endif
+        op_tr = new("op_tr");
         op_tr.sin_op_in = cmd;
         ap.write(op_tr);
     endfunction : write_to_monitor

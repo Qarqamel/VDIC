@@ -17,7 +17,7 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 
 	uvm_tlm_analysis_fifo #(operation_transaction) op_in;
 	
-	protected test_result tr = TEST_PASSED;
+	local test_result tr = TEST_PASSED;
 
 //------------------------------------------------------------------------------
 // constructor
@@ -53,7 +53,7 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 // calculate expected result
 //------------------------------------------------------------------------------
 	
-	protected function result_transaction get_expected(operation_transaction single_input);		
+	local function result_transaction get_expected(operation_transaction single_input);		
 		bit [15:0] result;
 		bit [8:0] status;
 		bit [29:0] ret_val;
@@ -61,32 +61,28 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 		
 		out_res = new("out_res");
 		
-		result = 16'h00FF & single_input.sin_op_in.data[8:1];
+		result = 16'h00FF & single_input.sin_op_in.data[7:0];
 		for (int i = 1; i < single_input.sin_op_in.arg_number; i++) begin
-//			if (single_input.sin_op_in.cmd == cmd_inv)begin
-//				status |= sts_invcmd;
-//				result = 0;
-//			end
 			case(single_input.sin_op_in.cmd)
 				cmd_and : begin
 					status |= sts_noerr;
-					result = result & single_input.sin_op_in.data[((i*10)+1)+:8];
+					result = result & single_input.sin_op_in.data[(i*8)+:8];
 				end
 				cmd_or : begin
 					status |= sts_noerr;
-					result = result | single_input.sin_op_in.data[((i*10)+1)+:8];
+					result = result | single_input.sin_op_in.data[(i*8)+:8];
 				end
 				cmd_xor : begin
 					status |= sts_noerr;
-					result = result ^ single_input.sin_op_in.data[((i*10)+1)+:8];
+					result = result ^ single_input.sin_op_in.data[(i*8)+:8];
 				end
 				cmd_add : begin
 					status |= sts_noerr;
-					result = result + single_input.sin_op_in.data[((i*10)+1)+:8];
+					result = result + single_input.sin_op_in.data[(i*8)+:8];
 				end
 				cmd_sub : begin
 					status |= sts_noerr;
-					result = result - single_input.sin_op_in.data[((i*10)+1)+:8];
+					result = result - single_input.sin_op_in.data[(i*8)+:8];
 	
 				end
 				default: begin
@@ -94,8 +90,12 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 					result = 0;
 				end
 			endcase
-			if (single_input.sin_op_in.parity == parity_wrong) begin
-				status |= sts_parerr;
+			if (single_input.sin_op_in.data_parity == parity_wrong) begin
+				status |= sts_parderr;
+				result = 0;	
+			end
+			if (single_input.sin_op_in.cmd_parity == parity_correct) begin
+				status |= sts_parcerr;
 				result = 0;	
 			end
 		end
@@ -150,15 +150,15 @@ class scoreboard extends uvm_subscriber #(result_transaction);
 //        end
 
         data_str  = { op.convert2string(),
-            " ==>  Actual " , t.convert2string(),
-            "/Predicted ",predicted_result.convert2string()};
+            " ==> Rcvd: " , t.convert2string(),
+            "/Pred: ",predicted_result.convert2string()};
 
         if (!predicted_result.compare(t)) begin
-            `uvm_error("SELF CHECKER", {"FAIL: ",data_str})
+            `uvm_error("SLF CHCK", {"FAIL: ",data_str})
             tr = TEST_FAILED;
         end
         else
-            `uvm_info ("SELF CHECKER", {"PASS: ", data_str}, UVM_HIGH)
+            `uvm_info ("SLF CHCK", {"PASS: ", data_str}, UVM_HIGH)
 
     endfunction : write
 

@@ -5,7 +5,7 @@ class max_transaction extends operation_transaction;
 // constraints
 //------------------------------------------------------------------------------
 
-    constraint max_min_only {sin_op_in.data_val dist {all_zeros := 2, all_ones := 2};}
+    constraint max_min_only {sin_op_in.data dist {80'h0 := 1, 80'hFFFFFFFFFFFFFFFFFFFF := 1};}
 
 //------------------------------------------------------------------------------
 // constructor

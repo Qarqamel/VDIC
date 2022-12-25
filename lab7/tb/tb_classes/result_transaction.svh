@@ -45,7 +45,7 @@ class result_transaction extends uvm_transaction;
 
     function string convert2string();
         string s;
-        s = $sformatf("status: %h result: %h", result.data[29:20], result.data[19:0]);
+        s = $sformatf("sts: %h res: %h", result.data[29:20], result.data[19:0]);
         return s;
     endfunction : convert2string
 
