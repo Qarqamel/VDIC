@@ -16,11 +16,6 @@ class operation_transaction extends uvm_transaction;
 		sin_op_in.arg_number dist {[2 : 10] := 1};
 	}
 	
-//    constraint data {
-//        A dist {8'h00:=2, [8'h01 : 8'hFE]:=1, 8'hFF:=2};
-//        B dist {8'h00:=2, [8'h01 : 8'hFE]:=1, 8'hFF:=2};
-//    }
-    
 //------------------------------------------------------------------------------
 // transaction functions: do_copy, clone_me, do_compare, convert2string
 //------------------------------------------------------------------------------
@@ -37,10 +32,6 @@ class operation_transaction extends uvm_transaction;
             `uvm_fatal("COMMAND TRANSACTION", "Tried to copy wrong type.")
         
         sin_op_in = copied_transaction_h.sin_op_in;
-        
-//        A  = copied_transaction_h.A;
-//        B  = copied_transaction_h.B;
-//        op = copied_transaction_h.op;
 
     endfunction : do_copy
 
@@ -70,10 +61,6 @@ class operation_transaction extends uvm_transaction;
         else
             same = super.do_compare(rhs, comparer) &&
             (compared_transaction_h.sin_op_in == sin_op_in);
-        
-//            (compared_transaction_h.A == A) &&
-//            (compared_transaction_h.B == B) &&
-//            (compared_transaction_h.op == op);
 
         return same;
         

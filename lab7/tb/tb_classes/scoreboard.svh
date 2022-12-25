@@ -128,26 +128,12 @@ class scoreboard extends uvm_subscriber #(result_transaction);
         operation_transaction op;
         result_transaction predicted_result;
 	    
-//        result_t predicted_result;	    
-//        single_op_input_t op;
-
         do
             if (!op_in.try_get(op))
                 $fatal(1, "Missing command in self checker");
         while ((op.sin_op_in.cmd == cmd_nop) || (op.sin_op_in.cmd == cmd_rst));
 
         predicted_result = get_expected(op);
-
-//        SCOREBOARD_CHECK:
-//        assert (predicted_result.data == t.data) begin
-//           `ifdef DEBUG
-//            $display("%0t Test passed for Data=%0d op_set=%0d", $time, op.data, op.cmd);
-//            `endif
-//        end
-//        else begin
-//            $error ("FAILED: Data: %0h, op: %s, arg_nr: %s, parity: %s, result: %0h", op.data, op.cmd.name(), op.arg_number.name(), op.parity.name(), t.data);
-//            tr = TEST_FAILED;
-//        end
 
         data_str  = { op.convert2string(),
             " ==> Rcvd: " , t.convert2string(),

@@ -5,7 +5,6 @@ class coverage extends uvm_subscriber #(operation_transaction);
 // Variables
 //------------------------------------------------------------------------------
 	
-	//virtual alu_bfm bfm;	
 	protected single_op_input_t sin_op;
 	
 //------------------------------------------------------------------------------
